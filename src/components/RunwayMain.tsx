@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import type { Category } from '../types';
 import { KX, KF, KH, KB, KO, MODELS_COUTURE } from '../data/categories';
 import { CropSvg } from './CropSvg';
@@ -236,15 +236,16 @@ export const RunwayMain: React.FC<RunwayMainProps> = ({
     return () => cancelAnimationFrame(animId);
   }, [calm, paint]);
 
-  // Setup resize listeners and initial size
-  useEffect(() => {
+  // Setup resize listeners and initial size synchronously before paint
+  useLayoutEffect(() => {
     size();
+    paint();
     window.addEventListener('resize', size);
     return () => window.removeEventListener('resize', size);
-  }, [size]);
+  }, [size, paint]);
 
-  // Reset indices on category switch
-  useEffect(() => {
+  // Reset indices on category switch synchronously before browser paint
+  useLayoutEffect(() => {
     pRef.current = 0;
     targetRef.current = 0;
     size();
@@ -375,7 +376,7 @@ export const RunwayMain: React.FC<RunwayMainProps> = ({
             const h = (look.y1 ?? 496) - (look.y0 ?? 48);
             return (
               <div
-                key={`${category.key}-${look.lookNum}-${i}`}
+                key={i}
                 ref={(el) => {
                   peopleRefs.current[i] = el;
                 }}
@@ -450,7 +451,7 @@ export const RunwayMain: React.FC<RunwayMainProps> = ({
 
           return (
             <article
-              key={item.id}
+              key={i}
               ref={(el) => {
                 cardRefs.current[i] = el;
               }}
